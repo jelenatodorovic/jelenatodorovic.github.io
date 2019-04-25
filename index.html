@@ -1,109 +1,103 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!-->
-<html class="no-js">
-<!--<![endif]-->
-
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="practice3.css">
+    <title>Monster Slayer</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="css/foundation.min.css">
+    <link rel="stylesheet" href="css/app.css">
 </head>
-
 <body>
-    <div id="exercise">
-        <!-- 1) Start the Effect with the Button. The Effect should alternate the "highlight" or "shrink" class on each new setInterval tick (attach respective class to the div with id "effect" below) -->
-        <div>
-            <button @click="startEffect">Start Effect</button>
-            <div id="effect" :class="effectClasses"></div>
+<div id="app">
+    <section class="row">
+        <div class="small-6 columns">
+            <h1 class="text-center">YOU</h1>
+            <div class="healthbar">
+                <div class="healthbar text-center" style="background-color: green; margin: 0; color: white;"
+                :style="{width: myPoints+'%'}">
+                    <span>{{ myPoints }}</span>
+                </div>
+            </div>
         </div>
-        <!-- 2) Create a couple of CSS classes and attach them via the array syntax -->
-        <div v-on:mouseover="changeFloat" v-bind:class="[blue, {float: float}, userClass]">Catch me if you can!</div>
-        <!-- 3) Let the user enter a class (create some example classes) and attach it -->
-        <div>
-            <p>Enter color: </p>
-            <input type="text" v-on:input="setUserClass">
-            <div></div>
+        <div class="small-6 columns">
+            <h1 class="text-center">MONSTER</h1>
+            <div class="healthbar">
+                <div class="healthbar text-center" style="background-color: green; margin: 0; color: white;"
+                :style="{width: monsterPoints+'%'}">
+                    <span>{{ monsterPoints }}</span>
+                </div>
+            </div>
         </div>
-       
-    </div>
+    </section>
+    <section class="row controls" v-if="!showControl">
+        <div class="small-12 columns">
+            <button id="start-game" @click="showControl = true" >START NEW GAME</button>
+        </div>
+    </section>
+    <section v-if="showControl" class="row controls">
+        <div class="small-12 columns">
+            <button id="attack" @click="attack">ATTACK</button>
+            <button id="special-attack" @click="specialAttack">SPECIAL ATTACK</button>
+            <button id="heal" @click="heal">HEAL</button>
+            <button id="give-up" @click="giveUp">GIVE UP</button>
+        </div>
+    </section>
+    <section class="row log">
+        <div class="small-12 columns">
+            <ul>
+                <li v-for="elem in results">
+                    {{ elem }}
+                </li>
+            </ul>
+        </div>
+    </section>
+</div>
 
-    <script>
-        new Vue({
-            el: '#exercise',
-            data: {
-                effectClasses: {
-                    highlight: true,
-                    shrink: false,
-                },
-                blue: 'yellow',
-                float: false,
-                userClass: ''     
-            },
-            computed: {
-               
-            },
-            methods: {
-                startEffect: function () {
-                    var vm = this;
-                    setInterval(function() {
-                      vm.effectClasses.highlight = !vm.effectClasses.highlight;
-                      vm.effectClasses.shrink = !vm.effectClasses.shrink;
-                    }, 500);
-                },
-                changeFloat: function() {
-                    this.float = !this.float;
-                },
-                setUserClass: function(event) {
-                    this.userClass = event.target.value;
+<script>
+    new Vue({
+        el: '#app', 
+        data: {
+            myPoints: 100,
+            monsterPoints: 100,
+            showControl: false,
+            results: [],
+            playerHits: 'PLAYER HITS MONSTER FOR ',
+            monsterHits: 'MONSTER HITS PLAYER FOR '
+
+        },
+        methods: {
+            attack: function() {
+                var player = Math.floor(Math.random() * 20) + 1;
+                this.myPoints -= player;
+                this.results.push(this.playerHits + player);
+
+                var monster = Math.floor(Math.random() * 20) + 1;
+                this.monsterPoints -= monster;
+                this.results.push(this.monsterHits + monster);
+
+                if(this.monsterPoints < 0) {
+                    alert('Monster is defeated!');
                 }
+            }, 
+            heal: function() {
+                this.myPoints += Math.floor(Math.random() * 10)+1;
+                if(this.myPoints > 100) {
+                    this.myPoints = 100;
+                }
+            },
+            specialAttack: function() {
+                this.myPoints -= Math.floor(Math.random() * 20) + 1;
+                this.monsterPoints -= Math.floor(Math.random() * 30) + 1;
+                if(this.monsterPoints < 0) {
+                    alert('Monster is defeated!');
+                }
+            },
+            giveUp: function() {
+                this.myPoints = 100;
+                this.monsterPoints = 100;
+                this.results=[];
             }
-
-        });
-    </script>
-    <style>
-        #effect {
-            width: 100px;
-            height: 100px;
-            border: 1px solid black;
-            margin: 10px;
         }
-
-        .highlight {
-            background-color: red;
-           
-        }
-
-        .shrink {
-            background-color: gray;
-        }
-
-        .blue{
-            background-color: blue;
-        }
-        .yellow {
-            background-color: yellow;
-            width: 100px;
-            height: 100px;
-            margin: 10px;
-        }
-        .green {
-            background-color: green;
-        }
-        .black {
-            background-color: black;
-        }
-        .float {
-            float: right;
-        }
-        
-    </style>
+    });
+</script>
 </body>
-
 </html>
